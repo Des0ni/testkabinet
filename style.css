@@ -124,3 +124,20 @@ select {
     margin: 20px 0;
     color: #aaa;
 }
+/* Состояния ответов */
+.opt-correct { 
+    background-color: #1e3a34 !important; 
+    border-color: #2ecc71 !important; 
+    color: #fff !important;
+}
+
+.opt-wrong { 
+    background-color: #4a1e1e !important; 
+    border-color: #e74c3c !important; 
+    color: #fff !important;
+}
+
+.option-box.selected { 
+    border-color: #00b894; 
+    background-color: rgba(0, 184, 148, 0.1); 
+}
