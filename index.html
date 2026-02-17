@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Платформа тестирования</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Панель выбора -->
+        <div class="top-panel">
+            <div class="select-wrapper">
+                <label>Группа:</label>
+                <select id="group-select">
+                    <option value="22-50">22-50</option>
+                </select>
+            </div>
+            <div class="select-wrapper">
+                <label>Дисциплина:</label>
+                <select id="discipline-select">
+                    <option value="mdk_01_04.json">МДК 01.04</option>
+                </select>
+            </div>
+            <div class="select-wrapper">
+                <label>Режим:</label>
+                <select id="mode-select">
+                    <option value="review">Просмотр</option>
+                    <option value="test-cabinet">Тест-кабинет</option>
+                    <option value="normal">Обычный тест</option>
+                </select>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Основной блок теста -->
+        <div id="quiz-area">
+            <div class="stats-line">
+                Вопрос <span id="current-num">0</span> из <span id="total-num">0</span>
+            </div>
+
+            <div class="progress-bar"><div id="bar-fill"></div></div>
+
+            <h2 id="question-text">Загрузка вопросов...</h2>
+
+            <div id="options-container" class="options-stack"></div>
+
+            <div class="actions">
+                <button id="next-btn" class="btn-main">Далее</button>
+            </div>
+        </div>
+
+        <!-- Блок итогов -->
+        <div id="result-area" class="hidden">
+            <h1 id="res-title">Результаты</h1>
+            <div id="res-score" class="score-display"></div>
+            <div class="res-buttons">
+                <button onclick="location.reload()" class="btn-main">Заново</button>
+                <button id="error-work-btn" class="btn-main hidden">Работа над ошибками</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

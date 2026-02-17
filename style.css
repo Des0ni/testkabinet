@@ -1,0 +1,126 @@
+body {
+    background-color: #1a1c1e;
+    color: #e1e2e3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.container {
+    background-color: #24272a;
+    width: 100%;
+    max-width: 850px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    border: 1px solid #333;
+}
+
+.top-panel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.select-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.select-wrapper label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+select {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid #333;
+    margin: 25px 0;
+}
+
+.stats-line {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    background: #333;
+    height: 4px;
+    border-radius: 2px;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+#bar-fill {
+    height: 100%;
+    background: #00b894;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+#question-text {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 30px;
+}
+
+.options-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.option-box {
+    background: #2d3135;
+    border: 1px solid #3d4246;
+    padding: 18px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+.option-box:hover { background: #353a3f; }
+.option-box.selected { border-color: #00b894; background: rgba(0, 184, 148, 0.05); }
+
+/* Цвета режимов */
+.opt-correct { background: #1e3a34 !important; border-color: #2ecc71 !important; }
+.opt-wrong { background: #3d2424 !important; border-color: #e74c3c !important; }
+
+.btn-main {
+    background-color: #00b894;
+    color: #fff;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 40px;
+}
+
+.btn-main:hover { background-color: #00a080; }
+
+.hidden { display: none; }
+
+.score-display {
+    font-size: 24px;
+    margin: 20px 0;
+    color: #aaa;
+}
