@@ -4,7 +4,7 @@ let currentIdx = 0;
 let score = 0;
 let wrongAnswers = [];
 let currentSelected = null;
-let currentOptionsMapping = []; 
+let currentOptionsMapping = []; // Тот самый массив для перемешивания ответов
 
 const UI = {
     qText: document.getElementById('question-text'),
@@ -27,14 +27,13 @@ async function loadData(filename) {
         questionsBank = data.questions;
         startSession(questionsBank);
     } catch (e) {
-        UI.qText.innerText = "Ошибка загрузки вопросов. Проверьте папку data и название файла.";
+        UI.qText.innerText = "Ошибка загрузки. Проверьте папку data и название файла.";
     }
 }
 
 function startSession(list) {
-    // Перемешиваем вопросы только если это не режим "Просмотр" (в просмотре лучше по порядку)
+    // Перемешиваем вопросы (кроме режима Просмотр)
     sessionQuestions = UI.mode.value === 'review' ? [...list] : [...list].sort(() => 0.5 - Math.random());
-    
     currentIdx = 0;
     score = 0;
     wrongAnswers = [];
@@ -53,13 +52,13 @@ function render() {
     UI.qText.innerText = q.q;
     UI.options.innerHTML = '';
 
-    // Генерируем случайный порядок ответов
+    // --- РАНДОМИЗАЦИЯ ОТВЕТОВ ТУТ ---
     currentOptionsMapping = q.a.map((_, i) => i).sort(() => 0.5 - Math.random());
 
     currentOptionsMapping.forEach((originalIdx) => {
         const div = document.createElement('div');
         div.className = 'option-box';
-        div.innerText = q.a[originalIdx];
+        div.innerText = q.a[originalIdx]; // Берем текст по случайному индексу
         
         div.onclick = () => handleSelection(div, originalIdx, q.correct);
         UI.options.appendChild(div);
@@ -67,28 +66,24 @@ function render() {
 }
 
 function handleSelection(clickedDiv, selectedIdx, correctIdx) {
-    if (currentSelected !== null) return; // Запрет менять ответ, если уже подсвечено
+    if (currentSelected !== null) return; 
 
     const mode = UI.mode.value;
 
-    // В "Обычном тесте" и "Просмотре" показываем ответ СРАЗУ
+    // Режимы с мгновенной подсветкой (Обычный и Просмотр)
     if (mode === 'normal' || mode === 'review') {
         currentSelected = selectedIdx;
         const boxes = document.querySelectorAll('.option-box');
         
         boxes.forEach((box, i) => {
             const originalIdx = currentOptionsMapping[i];
-            box.style.pointerEvents = 'none'; // Блокируем остальные клики
+            box.style.pointerEvents = 'none'; 
 
-            if (originalIdx === correctIdx) {
-                box.classList.add('opt-correct'); // Правильный - зеленый
-            }
-            if (originalIdx === selectedIdx && selectedIdx !== correctIdx) {
-                box.classList.add('opt-wrong'); // Неправильный - красный
-            }
+            if (originalIdx === correctIdx) box.classList.add('opt-correct');
+            if (originalIdx === selectedIdx && selectedIdx !== correctIdx) box.classList.add('opt-wrong');
         });
     } 
-    // В "Тест-кабинете" просто выбираем (без подсветки)
+    // Режим Тест-кабинет (без подсказок)
     else {
         document.querySelectorAll('.option-box').forEach(b => b.classList.remove('selected'));
         clickedDiv.classList.add('selected');
@@ -97,64 +92,43 @@ function handleSelection(clickedDiv, selectedIdx, correctIdx) {
 }
 
 UI.nextBtn.onclick = () => {
-    if (currentSelected === null) {
-        alert("Сначала выберите ответ!");
-        return;
-    }
+    if (currentSelected === null) return alert("Выберите ответ!");
 
     const q = sessionQuestions[currentIdx];
-    if (currentSelected === q.correct) {
-        score++;
-    } else {
-        wrongAnswers.push(q);
-    }
+    if (currentSelected === q.correct) score++;
+    else wrongAnswers.push(q);
 
     currentIdx++;
-    if (currentIdx < sessionQuestions.length) {
-        render();
-    } else {
-        finish();
-    }
+    if (currentIdx < sessionQuestions.length) render();
+    else finish();
 };
 
 function finish() {
     UI.quizArea.classList.add('hidden');
     UI.resultArea.classList.remove('hidden');
     
-    const percent = Math.round((score / sessionQuestions.length) * 100);
+    // Расчет 100 баллов
+    const points = Math.round((score / sessionQuestions.length) * 100);
     const scoreDiv = document.getElementById('res-score');
     const title = document.getElementById('res-title');
 
-    scoreDiv.innerHTML = `Результат: <b>${score}</b> из <b>${sessionQuestions.length}</b><br>Верно: <b>${percent}%</b>`;
-
-    // Логика Тест-кабинета (Зачет)
     if (UI.mode.value === 'test-cabinet') {
-        if (percent >= 60) {
-            title.innerText = "ТЕСТ ПРОЙДЕН ✅";
-            title.style.color = "#2ecc71";
-        } else {
-            title.innerText = "ТЕСТ НЕ ПРОЙДЕН ❌";
-            title.style.color = "#e74c3c";
-        }
+        title.innerText = points >= 60 ? "ТЕСТ ПРОЙДЕН ✅" : "ТЕСТ НЕ ПРОЙДЕН ❌";
+        title.style.color = points >= 60 ? "#2ecc71" : "#e74c3c";
+        scoreDiv.innerHTML = `Набрано баллов: <b style="font-size: 32px; color: #fff;">${points}</b> из <b>100</b>`;
         UI.errBtn.classList.add('hidden');
-    } 
-    // Логика Обычного теста (Работа над ошибками)
-    else {
-        title.innerText = "Тест завершен";
+    } else {
+        title.innerText = "Результаты";
         title.style.color = "#fff";
+        scoreDiv.innerHTML = `Верно: <b>${score}</b> из <b>${sessionQuestions.length}</b> (<b>${points}%</b>)`;
         
         if (wrongAnswers.length > 0 && UI.mode.value === 'normal') {
             UI.errBtn.classList.remove('hidden');
             UI.errBtn.onclick = () => startSession(wrongAnswers);
-        } else {
-            UI.errBtn.classList.add('hidden');
-        }
+        } else UI.errBtn.classList.add('hidden');
     }
 }
 
-// При смене режима - перезапуск
 UI.mode.onchange = () => startSession(questionsBank);
-
-// Старт
 loadData(UI.file.value);
 UI.file.onchange = (e) => loadData(e.target.value);
