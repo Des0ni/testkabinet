@@ -4,7 +4,7 @@ let currentIdx = 0;
 let score = 0;
 let wrongAnswers = [];
 let currentSelected = null;
-let currentOptionsMapping = []; // Тот самый массив для перемешивания ответов
+let currentOptionsMapping = []; 
 
 const UI = {
     qText: document.getElementById('question-text'),
@@ -20,6 +20,15 @@ const UI = {
     errBtn: document.getElementById('error-work-btn')
 };
 
+// Функция надежного перемешивания
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
 async function loadData(filename) {
     try {
         const res = await fetch(`./data/${filename}?v=${new Date().getTime()}`);
@@ -27,13 +36,14 @@ async function loadData(filename) {
         questionsBank = data.questions;
         startSession(questionsBank);
     } catch (e) {
-        UI.qText.innerText = "Ошибка загрузки. Проверьте папку data и название файла.";
+        UI.qText.innerText = "Ошибка загрузки вопросов. Проверьте путь к файлу.";
     }
 }
 
 function startSession(list) {
-    // Перемешиваем вопросы (кроме режима Просмотр)
-    sessionQuestions = UI.mode.value === 'review' ? [...list] : [...list].sort(() => 0.5 - Math.random());
+    // ВСЕГДА перемешиваем вопросы при старте новой сессии
+    sessionQuestions = shuffleArray([...list]);
+    
     currentIdx = 0;
     score = 0;
     wrongAnswers = [];
@@ -52,13 +62,13 @@ function render() {
     UI.qText.innerText = q.q;
     UI.options.innerHTML = '';
 
-    // --- РАНДОМИЗАЦИЯ ОТВЕТОВ ТУТ ---
-    currentOptionsMapping = q.a.map((_, i) => i).sort(() => 0.5 - Math.random());
+    // Перемешиваем варианты ответов
+    currentOptionsMapping = shuffleArray(q.a.map((_, i) => i));
 
     currentOptionsMapping.forEach((originalIdx) => {
         const div = document.createElement('div');
         div.className = 'option-box';
-        div.innerText = q.a[originalIdx]; // Берем текст по случайному индексу
+        div.innerText = q.a[originalIdx];
         
         div.onclick = () => handleSelection(div, originalIdx, q.correct);
         UI.options.appendChild(div);
@@ -69,45 +79,57 @@ function handleSelection(clickedDiv, selectedIdx, correctIdx) {
     if (currentSelected !== null) return; 
 
     const mode = UI.mode.value;
+    currentSelected = selectedIdx;
 
     // Режимы с мгновенной подсветкой (Обычный и Просмотр)
     if (mode === 'normal' || mode === 'review') {
-        currentSelected = selectedIdx;
         const boxes = document.querySelectorAll('.option-box');
         
         boxes.forEach((box, i) => {
             const originalIdx = currentOptionsMapping[i];
-            box.style.pointerEvents = 'none'; 
+            box.style.pointerEvents = 'none'; // Блокируем выбор
 
-            if (originalIdx === correctIdx) box.classList.add('opt-correct');
-            if (originalIdx === selectedIdx && selectedIdx !== correctIdx) box.classList.add('opt-wrong');
+            if (originalIdx === correctIdx) {
+                // ПРАВИЛЬНЫЙ ответ - зеленый
+                box.classList.add('opt-correct');
+            } else {
+                // ВСЕ ОСТАЛЬНЫЕ (неправильные) - красные
+                box.classList.add('opt-wrong');
+            }
         });
     } 
-    // Режим Тест-кабинет (без подсказок)
+    // Режим "Тест-кабинет" (только выделение рамкой)
     else {
         document.querySelectorAll('.option-box').forEach(b => b.classList.remove('selected'));
         clickedDiv.classList.add('selected');
-        currentSelected = selectedIdx;
     }
 }
 
 UI.nextBtn.onclick = () => {
-    if (currentSelected === null) return alert("Выберите ответ!");
+    if (currentSelected === null) {
+        alert("Выберите вариант ответа!");
+        return;
+    }
 
     const q = sessionQuestions[currentIdx];
-    if (currentSelected === q.correct) score++;
-    else wrongAnswers.push(q);
+    if (currentSelected === q.correct) {
+        score++;
+    } else {
+        wrongAnswers.push(q);
+    }
 
     currentIdx++;
-    if (currentIdx < sessionQuestions.length) render();
-    else finish();
+    if (currentIdx < sessionQuestions.length) {
+        render();
+    } else {
+        finish();
+    }
 };
 
 function finish() {
     UI.quizArea.classList.add('hidden');
     UI.resultArea.classList.remove('hidden');
     
-    // Расчет 100 баллов
     const points = Math.round((score / sessionQuestions.length) * 100);
     const scoreDiv = document.getElementById('res-score');
     const title = document.getElementById('res-title');
@@ -115,7 +137,7 @@ function finish() {
     if (UI.mode.value === 'test-cabinet') {
         title.innerText = points >= 60 ? "ТЕСТ ПРОЙДЕН ✅" : "ТЕСТ НЕ ПРОЙДЕН ❌";
         title.style.color = points >= 60 ? "#2ecc71" : "#e74c3c";
-        scoreDiv.innerHTML = `Набрано баллов: <b style="font-size: 32px; color: #fff;">${points}</b> из <b>100</b>`;
+        scoreDiv.innerHTML = `Баллов набрано: <b style="font-size: 32px; color: #fff;">${points}</b> из <b>100</b><br><small>Верно: ${score} из ${sessionQuestions.length}</small>`;
         UI.errBtn.classList.add('hidden');
     } else {
         title.innerText = "Результаты";
@@ -125,10 +147,14 @@ function finish() {
         if (wrongAnswers.length > 0 && UI.mode.value === 'normal') {
             UI.errBtn.classList.remove('hidden');
             UI.errBtn.onclick = () => startSession(wrongAnswers);
-        } else UI.errBtn.classList.add('hidden');
+        } else {
+            UI.errBtn.classList.add('hidden');
+        }
     }
 }
 
+// При смене режима - полная перезагрузка сессии с новым перемешиванием
 UI.mode.onchange = () => startSession(questionsBank);
+
 loadData(UI.file.value);
 UI.file.onchange = (e) => loadData(e.target.value);
