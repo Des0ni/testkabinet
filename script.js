@@ -20,7 +20,7 @@ const UI = {
     errBtn: document.getElementById('error-work-btn')
 };
 
-// Функция надежного перемешивания
+// Функция перемешивания (теперь только для ОТВЕТОВ)
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -36,13 +36,13 @@ async function loadData(filename) {
         questionsBank = data.questions;
         startSession(questionsBank);
     } catch (e) {
-        UI.qText.innerText = "Ошибка загрузки вопросов. Проверьте путь к файлу.";
+        UI.qText.innerText = "Ошибка загрузки вопросов.";
     }
 }
 
 function startSession(list) {
-    // ВСЕГДА перемешиваем вопросы при старте новой сессии
-    sessionQuestions = shuffleArray([...list]);
+    // УБРАЛИ ПЕРЕМЕШИВАНИЕ ВОПРОСОВ. Теперь они идут строго по порядку.
+    sessionQuestions = [...list]; 
     
     currentIdx = 0;
     score = 0;
@@ -62,7 +62,7 @@ function render() {
     UI.qText.innerText = q.q;
     UI.options.innerHTML = '';
 
-    // Перемешиваем варианты ответов
+    // Перемешиваем только ВАРИАНТЫ ответов
     currentOptionsMapping = shuffleArray(q.a.map((_, i) => i));
 
     currentOptionsMapping.forEach((originalIdx) => {
@@ -81,24 +81,20 @@ function handleSelection(clickedDiv, selectedIdx, correctIdx) {
     const mode = UI.mode.value;
     currentSelected = selectedIdx;
 
-    // Режимы с мгновенной подсветкой (Обычный и Просмотр)
     if (mode === 'normal' || mode === 'review') {
         const boxes = document.querySelectorAll('.option-box');
         
         boxes.forEach((box, i) => {
             const originalIdx = currentOptionsMapping[i];
-            box.style.pointerEvents = 'none'; // Блокируем выбор
+            box.style.pointerEvents = 'none';
 
             if (originalIdx === correctIdx) {
-                // ПРАВИЛЬНЫЙ ответ - зеленый
                 box.classList.add('opt-correct');
             } else {
-                // ВСЕ ОСТАЛЬНЫЕ (неправильные) - красные
                 box.classList.add('opt-wrong');
             }
         });
     } 
-    // Режим "Тест-кабинет" (только выделение рамкой)
     else {
         document.querySelectorAll('.option-box').forEach(b => b.classList.remove('selected'));
         clickedDiv.classList.add('selected');
@@ -137,7 +133,7 @@ function finish() {
     if (UI.mode.value === 'test-cabinet') {
         title.innerText = points >= 60 ? "ТЕСТ ПРОЙДЕН ✅" : "ТЕСТ НЕ ПРОЙДЕН ❌";
         title.style.color = points >= 60 ? "#2ecc71" : "#e74c3c";
-        scoreDiv.innerHTML = `Баллов набрано: <b style="font-size: 32px; color: #fff;">${points}</b> из <b>100</b><br><small>Верно: ${score} из ${sessionQuestions.length}</small>`;
+        scoreDiv.innerHTML = `Баллов набрано: <b style="font-size: 32px; color: #fff;">${points}</b> из <b>100</b><br><small>Правильных ответов: ${score} из ${sessionQuestions.length}</small>`;
         UI.errBtn.classList.add('hidden');
     } else {
         title.innerText = "Результаты";
@@ -153,7 +149,7 @@ function finish() {
     }
 }
 
-// При смене режима - полная перезагрузка сессии с новым перемешиванием
+// При смене режима - перезапуск по порядку
 UI.mode.onchange = () => startSession(questionsBank);
 
 loadData(UI.file.value);
