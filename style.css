@@ -141,38 +141,51 @@ select {
     border-color: #00b894; 
     background-color: rgba(0, 184, 148, 0.1); 
 }
-/* Стили для Быстрого повторения */
-#fast-rev-area {
+#fast-list-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
+    margin-top: 20px;
 }
 
-.fast-card {
-    background: #2d3135;
-    padding: 20px;
-    border-radius: 10px;
-    border-left: 5px solid #00b894;
+.fast-item {
+    background-color: #24272a;
+    padding: 15px;
+    border-radius: 8px;
+    border-bottom: 2px solid #333;
     text-align: left;
 }
 
-.fast-question {
-    font-size: 18px;
+.fast-q-title {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 8px;
     font-weight: bold;
-    margin-bottom: 15px;
-    color: #fff;
 }
 
-.fast-option {
-    padding: 8px 12px;
-    margin: 4px 0;
-    border-radius: 6px;
+.fast-q-text {
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.fast-ans-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.fast-ans {
+    padding: 6px 10px;
+    border-radius: 4px;
     font-size: 15px;
-    color: #ccc;
+    color: #bbb;
 }
 
-.fast-correct {
-    background: #1e3a34;
+/* Подсветка только правильного */
+.fast-ans.correct-only {
+    background-color: #1e3a34;
     color: #2ecc71;
-    font-weight: bold;
+    font-weight: 600;
 }

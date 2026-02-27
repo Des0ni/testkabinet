@@ -18,28 +18,53 @@ const UI = {
     mode: document.getElementById('mode-select'),
     file: document.getElementById('discipline-select'),
     errBtn: document.getElementById('error-work-btn'),
-    fastArea: document.getElementById('fast-rev-area'),
+    fastContainer: document.getElementById('fast-list-container'),
     quizArea: document.getElementById('quiz-area'),
     resultArea: document.getElementById('result-area')
 };
 function startSession(list) {
+    // Вопросы всегда в одном порядке (по просьбе)
     sessionQuestions = [...list]; 
     
     currentIdx = 0;
     score = 0;
     wrongAnswers = [];
 
+    // Скрываем всё, кроме нужного режима
     UI.quizArea.classList.add('hidden');
     UI.resultArea.classList.add('hidden');
-    UI.fastArea.classList.add('hidden');
-    UI.fastArea.innerHTML = ''; // Очистка
+    UI.fastContainer.classList.add('hidden');
+    UI.fastContainer.innerHTML = ''; 
 
     if (UI.mode.value === 'fast-rev') {
-        renderFastRevision();
+        renderFastList();
     } else {
         UI.quizArea.classList.remove('hidden');
         render();
     }
+}
+
+function renderFastList() {
+    UI.fastContainer.classList.remove('hidden');
+    
+    sessionQuestions.forEach((q, index) => {
+        const item = document.createElement('div');
+        item.className = 'fast-item';
+        
+        let answersHtml = '';
+        q.a.forEach((text, i) => {
+
+            const correctClass = (i === q.correct) ? 'correct-only' : '';
+            answersHtml += `<div class="fast-ans ${correctClass}">${text}</div>`;
+        });
+
+        item.innerHTML = `
+            <div class="fast-q-title">Вопрос ${index + 1} / ${sessionQuestions.length}</div>
+            <div class="fast-q-text">${q.q}</div>
+            <div class="fast-ans-list">${answersHtml}</div>
+        `;
+        UI.fastContainer.appendChild(item);
+    });
 }
 
 function renderFastRevision() {
