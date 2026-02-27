@@ -8,7 +8,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Панель выбора -->
         <div class="top-panel">
             <div class="select-wrapper">
                 <label>Группа:</label>
@@ -29,32 +28,30 @@
                     <option value="review">Просмотр</option>
                     <option value="test-cabinet">Тест-кабинет</option>
                     <option value="normal">Обычный тест</option>
-                    <option value="fast-rev">Быстрое повторение</option> 
+                    <option value="fast-rev">Быстрое повторение</option>
                 </select>
             </div>
         </div>
 
         <hr class="divider">
 
-        <!-- Основной блок теста -->
+        <!-- ОБЫЧНЫЙ ТЕСТ -->
         <div id="quiz-area">
-            <div id="fast-rev-area" class="hidden"></div>
             <div class="stats-line">
                 Вопрос <span id="current-num">0</span> из <span id="total-num">0</span>
             </div>
-
             <div class="progress-bar"><div id="bar-fill"></div></div>
-
             <h2 id="question-text">Загрузка вопросов...</h2>
-
             <div id="options-container" class="options-stack"></div>
-
             <div class="actions">
                 <button id="next-btn" class="btn-main">Далее</button>
             </div>
         </div>
 
-        <!-- Блок итогов -->
+        <!-- БЫСТРОЕ ПОВТОРЕНИЕ (ЛЕНТА) -->
+        <div id="fast-area" class="hidden"></div>
+
+        <!-- ИТОГИ -->
         <div id="result-area" class="hidden">
             <h1 id="res-title">Результаты</h1>
             <div id="res-score" class="score-display"></div>
@@ -64,7 +61,6 @@
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
