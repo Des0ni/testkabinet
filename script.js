@@ -17,9 +17,53 @@ const UI = {
     resultArea: document.getElementById('result-area'),
     mode: document.getElementById('mode-select'),
     file: document.getElementById('discipline-select'),
-    errBtn: document.getElementById('error-work-btn')
+    errBtn: document.getElementById('error-work-btn'),
+    fastArea: document.getElementById('fast-rev-area'),
+    quizArea: document.getElementById('quiz-area'),
+    resultArea: document.getElementById('result-area')
 };
+function startSession(list) {
+    sessionQuestions = [...list]; 
+    
+    currentIdx = 0;
+    score = 0;
+    wrongAnswers = [];
 
+    UI.quizArea.classList.add('hidden');
+    UI.resultArea.classList.add('hidden');
+    UI.fastArea.classList.add('hidden');
+    UI.fastArea.innerHTML = ''; // Очистка
+
+    if (UI.mode.value === 'fast-rev') {
+        renderFastRevision();
+    } else {
+        UI.quizArea.classList.remove('hidden');
+        render();
+    }
+}
+
+function renderFastRevision() {
+    UI.fastArea.classList.remove('hidden');
+    
+    sessionQuestions.forEach((q, index) => {
+        const card = document.createElement('div');
+        card.className = 'fast-card';
+        
+        let optionsHtml = '';
+        q.a.forEach((text, i) => {
+
+            const isCorrect = (i === q.correct) ? 'fast-correct' : '';
+            optionsHtml += `<div class="fast-option ${isCorrect}">${text}</div>`;
+        });
+
+        card.innerHTML = `
+            <div class="stats-line">Вопрос ${index + 1}</div>
+            <div class="fast-question">${q.q}</div>
+            <div class="fast-options">${optionsHtml}</div>
+        `;
+        UI.fastArea.appendChild(card);
+    });
+}
 // Функция перемешивания (теперь только для ОТВЕТОВ)
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {

@@ -141,3 +141,38 @@ select {
     border-color: #00b894; 
     background-color: rgba(0, 184, 148, 0.1); 
 }
+/* Стили для Быстрого повторения */
+#fast-rev-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.fast-card {
+    background: #2d3135;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 5px solid #00b894;
+    text-align: left;
+}
+
+.fast-question {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.fast-option {
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 6px;
+    font-size: 15px;
+    color: #ccc;
+}
+
+.fast-correct {
+    background: #1e3a34;
+    color: #2ecc71;
+    font-weight: bold;
+}
