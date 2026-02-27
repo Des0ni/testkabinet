@@ -47,7 +47,6 @@ function startSession(list) {
     const currentFileName = UI.file.value;
     const currentMode = UI.mode.value;
 
-
     if (currentFileName === 'opbd.json' && (currentMode === 'review' || currentMode === 'test-cabinet')) {
         sessionQuestions = shuffle([...list]);
     } else {
@@ -111,23 +110,27 @@ function render() {
     });
 }
 
+
 function handleSelection(clickedDiv, selectedIdx, correctIdx) {
-    if (currentSelected !== null) return;
     const mode = UI.mode.value;
 
+
     if (mode === 'normal' || mode === 'review') {
+        if (currentSelected !== null) return; 
+        
         currentSelected = selectedIdx;
         const boxes = document.querySelectorAll('.option-box');
         boxes.forEach((box, i) => {
             const originalIdx = currentOptionsMapping[i];
-            box.style.pointerEvents = 'none';
+            box.style.pointerEvents = 'none'; 
             if (originalIdx === correctIdx) box.classList.add('opt-correct');
             else box.classList.add('opt-wrong');
         });
-    } else {
+    } 
+    else {
+        currentSelected = selectedIdx;
         document.querySelectorAll('.option-box').forEach(b => b.classList.remove('selected'));
         clickedDiv.classList.add('selected');
-        currentSelected = selectedIdx;
     }
 }
 
