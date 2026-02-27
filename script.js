@@ -22,9 +22,12 @@ const UI = {
 };
 
 function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    let m = array.length, t, i;
+    while (m) {
+        i = Math.floor(Math.random() * m--);
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
     }
     return array;
 }
@@ -41,19 +44,27 @@ async function loadData(filename) {
 }
 
 function startSession(list) {
-    // Вопросы всегда по порядку
-    sessionQuestions = [...list];
+    const currentFileName = UI.file.value;
+    const currentMode = UI.mode.value;
+
+
+    if (currentFileName === 'opbd.json' && (currentMode === 'review' || currentMode === 'test-cabinet')) {
+        sessionQuestions = shuffle([...list]);
+    } else {
+        sessionQuestions = [...list];
+    }
+
     currentIdx = 0;
     score = 0;
     wrongAnswers = [];
 
-    // Сбрасываем видимость
     UI.quizArea.classList.add('hidden');
     UI.resultArea.classList.add('hidden');
     UI.fastArea.classList.add('hidden');
+    UI.errBtn.classList.add('hidden');
     UI.fastArea.innerHTML = '';
 
-    if (UI.mode.value === 'fast-rev') {
+    if (currentMode === 'fast-rev') {
         renderFastList();
     } else {
         UI.quizArea.classList.remove('hidden');
@@ -66,13 +77,11 @@ function renderFastList() {
     sessionQuestions.forEach((q, i) => {
         const card = document.createElement('div');
         card.className = 'fast-card';
-        
         let opts = '';
         q.a.forEach((text, idx) => {
             const isCorrect = (idx === q.correct) ? 'fast-correct' : '';
             opts += `<div class="fast-opt ${isCorrect}">${text}</div>`;
         });
-
         card.innerHTML = `
             <div class="stats-line">Вопрос ${i + 1}</div>
             <div class="fast-q">${q.q}</div>
@@ -91,7 +100,6 @@ function render() {
     UI.qText.innerText = q.q;
     UI.options.innerHTML = '';
 
-    // Перемешиваем только ответы
     currentOptionsMapping = shuffle(q.a.map((_, i) => i));
 
     currentOptionsMapping.forEach((originalIdx) => {
@@ -144,10 +152,11 @@ function finish() {
     if (UI.mode.value === 'test-cabinet') {
         title.innerText = points >= 60 ? "ТЕСТ ПРОЙДЕН ✅" : "ТЕСТ НЕ ПРОЙДЕН ❌";
         title.style.color = points >= 60 ? "#2ecc71" : "#e74c3c";
-        scoreDiv.innerHTML = `Баллов: <b style="font-size: 32px;">${points}</b> из 100`;
+        scoreDiv.innerHTML = `Баллов: <b style="font-size: 32px;">${points}</b> из 100<br><small>Верно: ${score} из ${sessionQuestions.length}</small>`;
     } else {
         title.innerText = "Результаты";
-        scoreDiv.innerHTML = `Верно: ${score} из ${sessionQuestions.length} (${points}%)`;
+        title.style.color = "#fff";
+        scoreDiv.innerHTML = `Верно: <b>${score}</b> из <b>${sessionQuestions.length}</b> (<b>${points}%</b>)`;
         if (wrongAnswers.length > 0 && UI.mode.value === 'normal') {
             UI.errBtn.classList.remove('hidden');
             UI.errBtn.onclick = () => startSession(wrongAnswers);
