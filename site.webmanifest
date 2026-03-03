@@ -1,0 +1,12 @@
+{
+    "name": "Подготовка к тест кабинету",
+    "short_name": "",
+    "icons": [
+      {
+        "src": "testkabinet.png",
+        "sizes": "180x180",
+        "type": "image/png"
+      }
+    ],
+    "display": "standalone"
+  }
