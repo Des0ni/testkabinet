@@ -7,7 +7,6 @@ body {
     justify-content: center;
     padding: 20px;
 }
-
 .container {
     background-color: #24272a;
     width: 100%;
@@ -17,7 +16,6 @@ body {
     box-shadow: 0 15px 35px rgba(0,0,0,0.4);
     border: 1px solid #333;
 }
-
 .top-panel { display: flex; flex-wrap: wrap; gap: 20px; }
 .select-wrapper { display: flex; flex-direction: column; gap: 5px; }
 .select-wrapper label { font-size: 11px; color: #888; text-transform: uppercase; }
@@ -31,15 +29,10 @@ select { background-color: #333; color: #fff; border: 1px solid #444; padding: 8
 .option-box { background: #2d3135; border: 1px solid #3d4246; padding: 15px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
 .option-box:hover { background: #353a3f; }
 .option-box.selected { border-color: #00b894; background: rgba(0, 184, 148, 0.05); }
-
-/* Цвета для проверки */
 .opt-correct { background: #1e3a34 !important; border-color: #2ecc71 !important; }
 .opt-wrong { background: #3d2424 !important; border-color: #e74c3c !important; }
-
 .btn-main { background-color: #00b894; color: #fff; border: none; padding: 12px 30px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 20px; }
 .hidden { display: none; }
-
-/* СТИЛИ ДЛЯ БЫСТРОГО ПОВТОРЕНИЯ */
 #fast-area { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
 .fast-card { background: #1f2225; padding: 20px; border-radius: 10px; border-left: 4px solid #00b894; text-align: left; }
 .fast-q { font-size: 17px; font-weight: 600; margin-bottom: 15px; }

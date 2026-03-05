@@ -110,14 +110,11 @@ function render() {
     });
 }
 
-
 function handleSelection(clickedDiv, selectedIdx, correctIdx) {
     const mode = UI.mode.value;
 
-
     if (mode === 'normal' || mode === 'review') {
         if (currentSelected !== null) return; 
-        
         currentSelected = selectedIdx;
         const boxes = document.querySelectorAll('.option-box');
         boxes.forEach((box, i) => {
