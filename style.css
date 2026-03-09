@@ -48,3 +48,23 @@ select { background-color: #333; color: #fff; border: 1px solid #444; padding: 8
 }
 #question-img.hidden { display: none; }
 .score-display { font-size: 20px; margin: 20px 0; }
+
+pre, code {
+    font-family: 'Consolas', 'Monaco', monospace;
+    background-color: #121416;
+    color: #e1e2e3;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+pre {
+    padding: 15px;
+    overflow-x: auto;
+    margin: 10px 0;
+    border: 1px solid #333;
+}
+
+.option-box code {
+    background-color: rgba(0,0,0,0.3);
+}

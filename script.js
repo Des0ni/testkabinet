@@ -40,50 +40,61 @@ async function loadData(filename) {
         questionsBank = data.questions;
         startSession(questionsBank);
     } catch (e) {
-        UI.qText.innerText = "Ошибка загрузки вопросов.";
+        UI.qText.innerHTML = "Ошибка загрузки вопросов.";
     }
 }
 
 function startSession(list) {
     const fn = UI.file.value;
     const md = UI.mode.value;
+
     if ((fn === 'opbd.json' || fn === 'mdk_01_01.json') && (md === 'review' || md === 'test-cabinet')) {
         sessionQuestions = shuffle([...list]);
     } else {
         sessionQuestions = [...list];
     }
+
     currentIdx = 0;
     score = 0;
     wrongAnswers = [];
-    UI.quizArea.classList.remove('hidden');
+
+    UI.quizArea.classList.add('hidden');
     UI.resultArea.classList.add('hidden');
     UI.fastArea.classList.add('hidden');
     UI.errBtn.classList.add('hidden');
     UI.fastArea.innerHTML = '';
-    if (md === 'fast-rev') renderFastList();
-    else render();
+
+    if (md === 'fast-rev') {
+        renderFastList();
+    } else {
+        UI.quizArea.classList.remove('hidden');
+        render();
+    }
 }
 
 function render() {
     const q = sessionQuestions[currentIdx];
     currentSelected = [];
+
     if (q.img) {
         UI.qImg.src = `./img/${q.img}`;
         UI.qImg.classList.remove('hidden');
     } else {
         UI.qImg.classList.add('hidden');
-        UI.qImg.src = '';
     }
+
     UI.num.innerText = currentIdx + 1;
     UI.total.innerText = sessionQuestions.length;
     UI.bar.style.width = ((currentIdx / sessionQuestions.length) * 100) + '%';
-    UI.qText.innerText = q.q;
+    UI.qText.innerHTML = q.q; 
     UI.options.innerHTML = '';
+
     currentOptionsMapping = shuffle(q.a.map((_, i) => i));
+
     currentOptionsMapping.forEach((origIdx) => {
         const div = document.createElement('div');
         div.className = 'option-box';
-        div.innerText = q.a[origIdx];
+        div.innerHTML = q.a[origIdx]; 
         div.onclick = () => handleSelection(div, origIdx, q.correct);
         UI.options.appendChild(div);
     });
@@ -92,6 +103,7 @@ function render() {
 function handleSelection(div, idx, correctArr) {
     const mode = UI.mode.value;
     const isMultiple = correctArr.length > 1;
+
     if (mode === 'normal' || mode === 'review') {
         if (!isMultiple) {
             if (currentSelected.length > 0) return;
@@ -100,7 +112,7 @@ function handleSelection(div, idx, correctArr) {
                 const oIdx = currentOptionsMapping[i];
                 box.style.pointerEvents = 'none';
                 if (correctArr.includes(oIdx)) box.classList.add('opt-correct');
-                else if (oIdx === idx) box.classList.add('opt-wrong');
+                else box.classList.add('opt-wrong');
             });
         } else {
             if (div.classList.contains('opt-correct') || div.classList.contains('opt-wrong')) return;
@@ -133,18 +145,21 @@ UI.nextBtn.onclick = () => {
     if (currentSelected.length === 0) return alert("Выберите ответ");
     const q = sessionQuestions[currentIdx];
     const mode = UI.mode.value;
+
     if (q.correct.length > 1 && (mode === 'normal' || mode === 'review') && !UI.options.querySelector('.opt-correct')) {
         document.querySelectorAll('.option-box').forEach((box, i) => {
             const oIdx = currentOptionsMapping[i];
             box.style.pointerEvents = 'none';
             if (q.correct.includes(oIdx)) box.classList.add('opt-correct');
-            else if (currentSelected.includes(oIdx)) box.classList.add('opt-wrong');
+            else box.classList.add('opt-wrong'); // В режиме проверки красим все неверные
         });
         return;
     }
+
     const isCorrect = q.correct.length === currentSelected.length && q.correct.every(v => currentSelected.includes(v));
     if (isCorrect) score++;
     else wrongAnswers.push(q);
+
     currentIdx++;
     if (currentIdx < sessionQuestions.length) render();
     else finish();
@@ -163,7 +178,7 @@ function finish() {
     } else {
         title.innerText = "Результаты";
         title.style.color = "#fff";
-        scoreDiv.innerHTML = `Верно: ${score} из ${sessionQuestions.length} (${pts}%)`;
+        scoreDiv.innerHTML = `Верно: <b>${score}</b> из <b>${sessionQuestions.length}</b> (${pts}%)`;
         if (wrongAnswers.length > 0 && UI.mode.value === 'normal') {
             UI.errBtn.classList.remove('hidden');
             UI.errBtn.onclick = () => startSession(wrongAnswers);
