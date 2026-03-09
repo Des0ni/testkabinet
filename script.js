@@ -3,7 +3,7 @@ let sessionQuestions = [];
 let currentIdx = 0;
 let score = 0;
 let wrongAnswers = [];
-let currentSelected = null;
+let currentSelected = [];
 let currentOptionsMapping = [];
 
 const UI = {
@@ -18,7 +18,8 @@ const UI = {
     fastArea: document.getElementById('fast-area'),
     mode: document.getElementById('mode-select'),
     file: document.getElementById('discipline-select'),
-    errBtn: document.getElementById('error-work-btn')
+    errBtn: document.getElementById('error-work-btn'),
+    qImg: document.getElementById('question-img')
 };
 
 function shuffle(array) {
@@ -44,99 +45,106 @@ async function loadData(filename) {
 }
 
 function startSession(list) {
-    const currentFileName = UI.file.value;
-    const currentMode = UI.mode.value;
-
-    if (currentFileName === 'opbd.json' && (currentMode === 'review' || currentMode === 'test-cabinet')) {
+    const fn = UI.file.value;
+    const md = UI.mode.value;
+    if ((fn === 'opbd.json' || fn === 'mdk_01_01.json') && (md === 'review' || md === 'test-cabinet')) {
         sessionQuestions = shuffle([...list]);
     } else {
         sessionQuestions = [...list];
     }
-
     currentIdx = 0;
     score = 0;
     wrongAnswers = [];
-
-    UI.quizArea.classList.add('hidden');
+    UI.quizArea.classList.remove('hidden');
     UI.resultArea.classList.add('hidden');
     UI.fastArea.classList.add('hidden');
     UI.errBtn.classList.add('hidden');
     UI.fastArea.innerHTML = '';
-
-    if (currentMode === 'fast-rev') {
-        renderFastList();
-    } else {
-        UI.quizArea.classList.remove('hidden');
-        render();
-    }
-}
-
-function renderFastList() {
-    UI.fastArea.classList.remove('hidden');
-    sessionQuestions.forEach((q, i) => {
-        const card = document.createElement('div');
-        card.className = 'fast-card';
-        let opts = '';
-        q.a.forEach((text, idx) => {
-            const isCorrect = (idx === q.correct) ? 'fast-correct' : '';
-            opts += `<div class="fast-opt ${isCorrect}">${text}</div>`;
-        });
-        card.innerHTML = `
-            <div class="stats-line">Вопрос ${i + 1}</div>
-            <div class="fast-q">${q.q}</div>
-            <div class="fast-ans-list">${opts}</div>
-        `;
-        UI.fastArea.appendChild(card);
-    });
+    if (md === 'fast-rev') renderFastList();
+    else render();
 }
 
 function render() {
     const q = sessionQuestions[currentIdx];
-    currentSelected = null;
+    currentSelected = [];
+    if (q.img) {
+        UI.qImg.src = `./img/${q.img}`;
+        UI.qImg.classList.remove('hidden');
+    } else {
+        UI.qImg.classList.add('hidden');
+        UI.qImg.src = '';
+    }
     UI.num.innerText = currentIdx + 1;
     UI.total.innerText = sessionQuestions.length;
     UI.bar.style.width = ((currentIdx / sessionQuestions.length) * 100) + '%';
     UI.qText.innerText = q.q;
     UI.options.innerHTML = '';
-
     currentOptionsMapping = shuffle(q.a.map((_, i) => i));
-
-    currentOptionsMapping.forEach((originalIdx) => {
+    currentOptionsMapping.forEach((origIdx) => {
         const div = document.createElement('div');
         div.className = 'option-box';
-        div.innerText = q.a[originalIdx];
-        div.onclick = () => handleSelection(div, originalIdx, q.correct);
+        div.innerText = q.a[origIdx];
+        div.onclick = () => handleSelection(div, origIdx, q.correct);
         UI.options.appendChild(div);
     });
 }
 
-function handleSelection(clickedDiv, selectedIdx, correctIdx) {
+function handleSelection(div, idx, correctArr) {
     const mode = UI.mode.value;
-
+    const isMultiple = correctArr.length > 1;
     if (mode === 'normal' || mode === 'review') {
-        if (currentSelected !== null) return; 
-        currentSelected = selectedIdx;
-        const boxes = document.querySelectorAll('.option-box');
-        boxes.forEach((box, i) => {
-            const originalIdx = currentOptionsMapping[i];
-            box.style.pointerEvents = 'none'; 
-            if (originalIdx === correctIdx) box.classList.add('opt-correct');
-            else box.classList.add('opt-wrong');
-        });
-    } 
-    else {
-        currentSelected = selectedIdx;
-        document.querySelectorAll('.option-box').forEach(b => b.classList.remove('selected'));
-        clickedDiv.classList.add('selected');
+        if (!isMultiple) {
+            if (currentSelected.length > 0) return;
+            currentSelected = [idx];
+            document.querySelectorAll('.option-box').forEach((box, i) => {
+                const oIdx = currentOptionsMapping[i];
+                box.style.pointerEvents = 'none';
+                if (correctArr.includes(oIdx)) box.classList.add('opt-correct');
+                else if (oIdx === idx) box.classList.add('opt-wrong');
+            });
+        } else {
+            if (div.classList.contains('opt-correct') || div.classList.contains('opt-wrong')) return;
+            if (currentSelected.includes(idx)) {
+                currentSelected = currentSelected.filter(i => i !== idx);
+                div.classList.remove('selected');
+            } else {
+                currentSelected.push(idx);
+                div.classList.add('selected');
+            }
+        }
+    } else {
+        if (!isMultiple) {
+            currentSelected = [idx];
+            document.querySelectorAll('.option-box').forEach(b => b.classList.remove('selected'));
+            div.classList.add('selected');
+        } else {
+            if (currentSelected.includes(idx)) {
+                currentSelected = currentSelected.filter(i => i !== idx);
+                div.classList.remove('selected');
+            } else {
+                currentSelected.push(idx);
+                div.classList.add('selected');
+            }
+        }
     }
 }
 
 UI.nextBtn.onclick = () => {
-    if (currentSelected === null) return alert("Выберите ответ");
+    if (currentSelected.length === 0) return alert("Выберите ответ");
     const q = sessionQuestions[currentIdx];
-    if (currentSelected === q.correct) score++;
+    const mode = UI.mode.value;
+    if (q.correct.length > 1 && (mode === 'normal' || mode === 'review') && !UI.options.querySelector('.opt-correct')) {
+        document.querySelectorAll('.option-box').forEach((box, i) => {
+            const oIdx = currentOptionsMapping[i];
+            box.style.pointerEvents = 'none';
+            if (q.correct.includes(oIdx)) box.classList.add('opt-correct');
+            else if (currentSelected.includes(oIdx)) box.classList.add('opt-wrong');
+        });
+        return;
+    }
+    const isCorrect = q.correct.length === currentSelected.length && q.correct.every(v => currentSelected.includes(v));
+    if (isCorrect) score++;
     else wrongAnswers.push(q);
-
     currentIdx++;
     if (currentIdx < sessionQuestions.length) render();
     else finish();
@@ -145,23 +153,39 @@ UI.nextBtn.onclick = () => {
 function finish() {
     UI.quizArea.classList.add('hidden');
     UI.resultArea.classList.remove('hidden');
-    const points = Math.round((score / sessionQuestions.length) * 100);
+    const pts = Math.round((score / sessionQuestions.length) * 100);
     const scoreDiv = document.getElementById('res-score');
     const title = document.getElementById('res-title');
-
     if (UI.mode.value === 'test-cabinet') {
-        title.innerText = points >= 60 ? "ТЕСТ ПРОЙДЕН ✅" : "ТЕСТ НЕ ПРОЙДЕН ❌";
-        title.style.color = points >= 60 ? "#2ecc71" : "#e74c3c";
-        scoreDiv.innerHTML = `Баллов: <b style="font-size: 32px;">${points}</b> из 100<br><small>Верно: ${score} из ${sessionQuestions.length}</small>`;
+        title.innerText = pts >= 60 ? "ТЕСТ ПРОЙДЕН ✅" : "ТЕСТ НЕ ПРОЙДЕН ❌";
+        title.style.color = pts >= 60 ? "#2ecc71" : "#e74c3c";
+        scoreDiv.innerHTML = `Баллов: <b style="font-size: 32px;">${pts}</b> из 100<br><small>Верно: ${score} из ${sessionQuestions.length}</small>`;
     } else {
         title.innerText = "Результаты";
         title.style.color = "#fff";
-        scoreDiv.innerHTML = `Верно: <b>${score}</b> из <b>${sessionQuestions.length}</b> (<b>${points}%</b>)`;
+        scoreDiv.innerHTML = `Верно: ${score} из ${sessionQuestions.length} (${pts}%)`;
         if (wrongAnswers.length > 0 && UI.mode.value === 'normal') {
             UI.errBtn.classList.remove('hidden');
             UI.errBtn.onclick = () => startSession(wrongAnswers);
         }
     }
+}
+
+function renderFastList() {
+    UI.fastArea.classList.remove('hidden');
+    UI.fastArea.innerHTML = '';
+    sessionQuestions.forEach((q, i) => {
+        const card = document.createElement('div');
+        card.className = 'fast-card';
+        let img = q.img ? `<img src="./img/${q.img}" style="max-width:100%; display:block; margin: 10px 0; border-radius:5px;">` : '';
+        let opts = '';
+        q.a.forEach((text, idx) => {
+            const isCorr = q.correct.includes(idx) ? 'fast-correct' : '';
+            opts += `<div class="fast-opt ${isCorr}">${text}</div>`;
+        });
+        card.innerHTML = `<div class="stats-line">Вопрос ${i + 1}</div><div class="fast-q">${q.q}</div>${img}<div>${opts}</div>`;
+        UI.fastArea.appendChild(card);
+    });
 }
 
 UI.mode.onchange = () => startSession(questionsBank);
