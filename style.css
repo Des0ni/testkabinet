@@ -68,3 +68,10 @@ pre {
 .option-box code {
     background-color: rgba(0,0,0,0.3);
 }
+
+.option-box {
+    white-space: normal;
+    word-break: break-word;
+    height: auto;
+    min-height: 50px;
+}

@@ -61,23 +61,22 @@ function startSession(list) {
     UI.errBtn.classList.add('hidden');
     UI.fastArea.innerHTML = '';
     if (md === 'fast-rev') renderFastList();
-    else render();
+    else {
+        UI.quizArea.classList.remove('hidden');
+        render();
+    }
 }
 
 function render() {
     const q = sessionQuestions[currentIdx];
     currentSelected = [];
-    
-    // ОПРЕДЕЛЯЕМ ПАПКУ (берем имя файла без .json)
     const folder = UI.file.value.replace('.json', '');
-
     if (q.img) {
         UI.qImg.src = `./img/${folder}/${q.img}`;
         UI.qImg.classList.remove('hidden');
     } else {
         UI.qImg.classList.add('hidden');
     }
-
     UI.num.innerText = currentIdx + 1;
     UI.total.innerText = sessionQuestions.length;
     UI.bar.style.width = ((currentIdx / sessionQuestions.length) * 100) + '%';
@@ -93,8 +92,9 @@ function render() {
     });
 }
 
-function handleSelection(div, idx, correctArr) {
+function handleSelection(div, idx, correctVal) {
     const mode = UI.mode.value;
+    const correctArr = Array.isArray(correctVal) ? correctVal : [correctVal];
     const isMultiple = correctArr.length > 1;
     if (mode === 'normal' || mode === 'review') {
         if (!isMultiple) {
@@ -137,16 +137,17 @@ UI.nextBtn.onclick = () => {
     if (currentSelected.length === 0) return alert("Выберите ответ");
     const q = sessionQuestions[currentIdx];
     const mode = UI.mode.value;
-    if (q.correct.length > 1 && (mode === 'normal' || mode === 'review') && !UI.options.querySelector('.opt-correct')) {
+    const correctArr = Array.isArray(q.correct) ? q.correct : [q.correct];
+    if (correctArr.length > 1 && (mode === 'normal' || mode === 'review') && !UI.options.querySelector('.opt-correct')) {
         document.querySelectorAll('.option-box').forEach((box, i) => {
             const oIdx = currentOptionsMapping[i];
             box.style.pointerEvents = 'none';
-            if (q.correct.includes(oIdx)) box.classList.add('opt-correct');
+            if (correctArr.includes(oIdx)) box.classList.add('opt-correct');
             else box.classList.add('opt-wrong');
         });
         return;
     }
-    const isCorrect = q.correct.length === currentSelected.length && q.correct.every(v => currentSelected.includes(v));
+    const isCorrect = correctArr.length === currentSelected.length && correctArr.every(v => currentSelected.includes(v));
     if (isCorrect) score++;
     else wrongAnswers.push(q);
     currentIdx++;
@@ -182,10 +183,11 @@ function renderFastList() {
     sessionQuestions.forEach((q, i) => {
         const card = document.createElement('div');
         card.className = 'fast-card';
+        const correctArr = Array.isArray(q.correct) ? q.correct : [q.correct];
         let img = q.img ? `<img src="./img/${folder}/${q.img}" style="max-width:100%; display:block; margin: 10px 0; border-radius:5px;">` : '';
         let opts = '';
         q.a.forEach((text, idx) => {
-            const isCorr = q.correct.includes(idx) ? 'fast-correct' : '';
+            const isCorr = correctArr.includes(idx) ? 'fast-correct' : '';
             opts += `<div class="fast-opt ${isCorr}">${text}</div>`;
         });
         card.innerHTML = `<div class="stats-line">Вопрос ${i + 1}</div><div class="fast-q">${q.q}</div>${img}<div>${opts}</div>`;
