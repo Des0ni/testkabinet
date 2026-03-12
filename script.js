@@ -47,37 +47,32 @@ async function loadData(filename) {
 function startSession(list) {
     const fn = UI.file.value;
     const md = UI.mode.value;
-
-    if ((fn === 'opbd.json' || fn === 'mdk_01_01.json') && (md === 'review' || md === 'test-cabinet')) {
+    if ((fn === 'opbd.json' || fn === 'mdk_01_01.json' || fn === 'probability.json') && (md === 'review' || md === 'test-cabinet')) {
         sessionQuestions = shuffle([...list]);
     } else {
         sessionQuestions = [...list];
     }
-
     currentIdx = 0;
     score = 0;
     wrongAnswers = [];
-
     UI.quizArea.classList.add('hidden');
     UI.resultArea.classList.add('hidden');
     UI.fastArea.classList.add('hidden');
     UI.errBtn.classList.add('hidden');
     UI.fastArea.innerHTML = '';
-
-    if (md === 'fast-rev') {
-        renderFastList();
-    } else {
-        UI.quizArea.classList.remove('hidden');
-        render();
-    }
+    if (md === 'fast-rev') renderFastList();
+    else render();
 }
 
 function render() {
     const q = sessionQuestions[currentIdx];
     currentSelected = [];
+    
+    // ОПРЕДЕЛЯЕМ ПАПКУ (берем имя файла без .json)
+    const folder = UI.file.value.replace('.json', '');
 
     if (q.img) {
-        UI.qImg.src = `./img/${q.img}`;
+        UI.qImg.src = `./img/${folder}/${q.img}`;
         UI.qImg.classList.remove('hidden');
     } else {
         UI.qImg.classList.add('hidden');
@@ -86,15 +81,13 @@ function render() {
     UI.num.innerText = currentIdx + 1;
     UI.total.innerText = sessionQuestions.length;
     UI.bar.style.width = ((currentIdx / sessionQuestions.length) * 100) + '%';
-    UI.qText.innerHTML = q.q; 
+    UI.qText.innerHTML = q.q;
     UI.options.innerHTML = '';
-
     currentOptionsMapping = shuffle(q.a.map((_, i) => i));
-
     currentOptionsMapping.forEach((origIdx) => {
         const div = document.createElement('div');
         div.className = 'option-box';
-        div.innerHTML = q.a[origIdx]; 
+        div.innerHTML = q.a[origIdx];
         div.onclick = () => handleSelection(div, origIdx, q.correct);
         UI.options.appendChild(div);
     });
@@ -103,7 +96,6 @@ function render() {
 function handleSelection(div, idx, correctArr) {
     const mode = UI.mode.value;
     const isMultiple = correctArr.length > 1;
-
     if (mode === 'normal' || mode === 'review') {
         if (!isMultiple) {
             if (currentSelected.length > 0) return;
@@ -145,21 +137,18 @@ UI.nextBtn.onclick = () => {
     if (currentSelected.length === 0) return alert("Выберите ответ");
     const q = sessionQuestions[currentIdx];
     const mode = UI.mode.value;
-
     if (q.correct.length > 1 && (mode === 'normal' || mode === 'review') && !UI.options.querySelector('.opt-correct')) {
         document.querySelectorAll('.option-box').forEach((box, i) => {
             const oIdx = currentOptionsMapping[i];
             box.style.pointerEvents = 'none';
             if (q.correct.includes(oIdx)) box.classList.add('opt-correct');
-            else box.classList.add('opt-wrong'); // В режиме проверки красим все неверные
+            else box.classList.add('opt-wrong');
         });
         return;
     }
-
     const isCorrect = q.correct.length === currentSelected.length && q.correct.every(v => currentSelected.includes(v));
     if (isCorrect) score++;
     else wrongAnswers.push(q);
-
     currentIdx++;
     if (currentIdx < sessionQuestions.length) render();
     else finish();
@@ -189,10 +178,11 @@ function finish() {
 function renderFastList() {
     UI.fastArea.classList.remove('hidden');
     UI.fastArea.innerHTML = '';
+    const folder = UI.file.value.replace('.json', '');
     sessionQuestions.forEach((q, i) => {
         const card = document.createElement('div');
         card.className = 'fast-card';
-        let img = q.img ? `<img src="./img/${q.img}" style="max-width:100%; display:block; margin: 10px 0; border-radius:5px;">` : '';
+        let img = q.img ? `<img src="./img/${folder}/${q.img}" style="max-width:100%; display:block; margin: 10px 0; border-radius:5px;">` : '';
         let opts = '';
         q.a.forEach((text, idx) => {
             const isCorr = q.correct.includes(idx) ? 'fast-correct' : '';
