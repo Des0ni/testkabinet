@@ -47,7 +47,7 @@ async function loadData(filename) {
 function startSession(list) {
     const fn = UI.file.value;
     const md = UI.mode.value;
-    if ((fn === 'opbd.json' || fn === 'mdk_01_01.json' || fn === 'probability.json') && (md === 'review' || md === 'test-cabinet')) {
+    if ((fn === 'opbd.json' || fn === 'mdk_01_01.json' || fn === 'mdk_01_04.json' || fn === 'probability.json') && (md === 'review' || md === 'test-cabinet')) {
         sessionQuestions = shuffle([...list]);
     } else {
         sessionQuestions = [...list];
