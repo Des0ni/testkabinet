@@ -47,7 +47,7 @@ async function loadData(filename) {
 function startSession(list) {
     const fn = UI.file.value;
     const md = UI.mode.value;
-    if ((fn === 'opbd.json' || fn === 'mdk_01_01.json' || fn === 'mdk_01_04.json' || fn === 'probability.json') && (md === 'review' || md === 'test-cabinet')) {
+    if ((fn === 'opbd.json' || fn === 'mdk_01_01.json' ||fn === 'mdk_01_04.json' || fn === 'probability.json' || fn === 'discrete_math.json') && (md === 'review' || md === 'test-cabinet')) {
         sessionQuestions = shuffle([...list]);
     } else {
         sessionQuestions = [...list];
@@ -86,7 +86,12 @@ function render() {
     currentOptionsMapping.forEach((origIdx) => {
         const div = document.createElement('div');
         div.className = 'option-box';
-        div.innerHTML = q.a[origIdx];
+        const content = q.a[origIdx];
+        if (content.includes('.png') || content.includes('.jpg')) {
+            div.innerHTML = `<img src="./img/${folder}/${content}" style="max-width:100%; max-height:120px; display:block; margin:0 auto;">`;
+        } else {
+            div.innerHTML = content;
+        }
         div.onclick = () => handleSelection(div, origIdx, q.correct);
         UI.options.appendChild(div);
     });
@@ -104,7 +109,7 @@ function handleSelection(div, idx, correctVal) {
                 const oIdx = currentOptionsMapping[i];
                 box.style.pointerEvents = 'none';
                 if (correctArr.includes(oIdx)) box.classList.add('opt-correct');
-                else box.classList.add('opt-wrong');
+                else if (oIdx === idx) box.classList.add('opt-wrong');
             });
         } else {
             if (div.classList.contains('opt-correct') || div.classList.contains('opt-wrong')) return;
@@ -143,7 +148,7 @@ UI.nextBtn.onclick = () => {
             const oIdx = currentOptionsMapping[i];
             box.style.pointerEvents = 'none';
             if (correctArr.includes(oIdx)) box.classList.add('opt-correct');
-            else box.classList.add('opt-wrong');
+            else if (currentSelected.includes(oIdx)) box.classList.add('opt-wrong');
         });
         return;
     }
@@ -188,7 +193,8 @@ function renderFastList() {
         let opts = '';
         q.a.forEach((text, idx) => {
             const isCorr = correctArr.includes(idx) ? 'fast-correct' : '';
-            opts += `<div class="fast-opt ${isCorr}">${text}</div>`;
+            let optContent = (text.includes('.png') || text.includes('.jpg')) ? `<img src="./img/${folder}/${text}" style="max-height:80px; display:inline-block; vertical-align:middle;">` : text;
+            opts += `<div class="fast-opt ${isCorr}">${optContent}</div>`;
         });
         card.innerHTML = `<div class="stats-line">Вопрос ${i + 1}</div><div class="fast-q">${q.q}</div>${img}<div>${opts}</div>`;
         UI.fastArea.appendChild(card);
