@@ -47,7 +47,7 @@ async function loadData(filename) {
 function startSession(list) {
     const fn = UI.file.value;
     const md = UI.mode.value;
-    if ((fn === 'opbd.json' || fn === 'mdk_01_01.json' ||fn === 'mdk_01_04.json' || fn === 'probability.json' || fn === 'discrete_math.json') && (md === 'review' || md === 'test-cabinet')) {
+    if ((fn === 'opbd.json' || fn === 'evm.json' || fn === 'mdk_01_01.json' || fn === 'mdk_01_04.json' ||  fn === 'probability.json' ||  fn === 'discrete_math.json') && (md === 'review' || md === 'test-cabinet')) {
         sessionQuestions = shuffle([...list]);
     } else {
         sessionQuestions = [...list];
@@ -101,6 +101,7 @@ function handleSelection(div, idx, correctVal) {
     const mode = UI.mode.value;
     const correctArr = Array.isArray(correctVal) ? correctVal : [correctVal];
     const isMultiple = correctArr.length > 1;
+
     if (mode === 'normal' || mode === 'review') {
         if (!isMultiple) {
             if (currentSelected.length > 0) return;
@@ -108,8 +109,11 @@ function handleSelection(div, idx, correctVal) {
             document.querySelectorAll('.option-box').forEach((box, i) => {
                 const oIdx = currentOptionsMapping[i];
                 box.style.pointerEvents = 'none';
-                if (correctArr.includes(oIdx)) box.classList.add('opt-correct');
-                else if (oIdx === idx) box.classList.add('opt-wrong');
+                if (correctArr.includes(oIdx)) {
+                    box.classList.add('opt-correct');
+                } else {
+                    box.classList.add('opt-wrong');
+                }
             });
         } else {
             if (div.classList.contains('opt-correct') || div.classList.contains('opt-wrong')) return;
@@ -143,15 +147,20 @@ UI.nextBtn.onclick = () => {
     const q = sessionQuestions[currentIdx];
     const mode = UI.mode.value;
     const correctArr = Array.isArray(q.correct) ? q.correct : [q.correct];
+
     if (correctArr.length > 1 && (mode === 'normal' || mode === 'review') && !UI.options.querySelector('.opt-correct')) {
         document.querySelectorAll('.option-box').forEach((box, i) => {
             const oIdx = currentOptionsMapping[i];
             box.style.pointerEvents = 'none';
-            if (correctArr.includes(oIdx)) box.classList.add('opt-correct');
-            else if (currentSelected.includes(oIdx)) box.classList.add('opt-wrong');
+            if (correctArr.includes(oIdx)) {
+                box.classList.add('opt-correct');
+            } else {
+                box.classList.add('opt-wrong');
+            }
         });
         return;
     }
+
     const isCorrect = correctArr.length === currentSelected.length && correctArr.every(v => currentSelected.includes(v));
     if (isCorrect) score++;
     else wrongAnswers.push(q);
