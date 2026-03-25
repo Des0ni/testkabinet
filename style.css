@@ -78,43 +78,46 @@ pre {
 .option-box img {
     pointer-events: none; 
 }
-.math-matrix {
+
+
+.math-container {
     display: inline-flex;
-    align-items: center;
     vertical-align: middle;
-    position: relative;
-    padding: 5px 12px;
-    margin: 0 5px;
+    align-items: center;
+    margin: 10px 5px;
+    color: #fff;
     font-family: 'Courier New', Courier, monospace;
-    line-height: 1.2;
 }
 
-.math-matrix::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 10px;
-    border: 2px solid #fff;
-    border-right: none;
-    border-radius: 12px 0 0 12px;
+.matrix-brackets {
+    display: flex;
+    flex-direction: column;
+    padding: 5px 12px;
+    border-left: 2px solid #fff;
+    border-right: 2px solid #fff;
+    border-radius: 15px; 
 }
 
-.math-matrix::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 10px;
-    border: 2px solid #fff;
-    border-left: none;
-    border-radius: 0 12px 12px 0;
+
+.det-brackets {
+    display: flex;
+    flex-direction: column;
+    padding: 5px 12px;
+    border-left: 2px solid #fff;
+    border-right: 2px solid #fff;
 }
 
-.matrix-row {
-    display: block;
-    white-space: pre; 
+
+.m-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px; 
+    white-space: nowrap;
+    line-height: 1.5;
+}
+
+.m-row span {
+    display: inline-block;
+    min-width: 20px;
     text-align: center;
 }
