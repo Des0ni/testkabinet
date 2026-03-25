@@ -78,3 +78,43 @@ pre {
 .option-box img {
     pointer-events: none; 
 }
+.math-matrix {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    position: relative;
+    padding: 5px 12px;
+    margin: 0 5px;
+    font-family: 'Courier New', Courier, monospace;
+    line-height: 1.2;
+}
+
+.math-matrix::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    border: 2px solid #fff;
+    border-right: none;
+    border-radius: 12px 0 0 12px;
+}
+
+.math-matrix::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    border: 2px solid #fff;
+    border-left: none;
+    border-radius: 0 12px 12px 0;
+}
+
+.matrix-row {
+    display: block;
+    white-space: pre; 
+    text-align: center;
+}
